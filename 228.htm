@@ -1,0 +1,882 @@
+Я добавил адаптивную вёрстку с медиа-запросами для планшетов и смартфонов. Основные изменения: на мобильных устройствах этапы выстроятся в одну колонку, шрифты и отступы уменьшатся, шапка станет компактнее, а изображения будут подстраиваться под ширину экрана.
+
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Производство шоколада</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Сброс и базовые стили --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 70px; 
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            color: #3a2218;
+            background-color: #fdf6ee;
+        }
+
+        /* --- Шапка с навигацией --- */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #3a1f12;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            border-bottom: 4px solid #7b4a2e;
+            height: 70px;
+        }
+
+        #logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 900;
+            color: #f5e6d3;
+            letter-spacing: 1px;
+        }
+
+        #navigation {
+            display: flex;
+            gap: 10px;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        #navigation a {
+            text-decoration: none;
+            color: #d4b896;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s, color 0.3s;
+            white-space: nowrap;
+        }
+
+        #navigation a:hover {
+            background-color: #7b4a2e;
+            color: #fff8f0;
+        }
+
+        /* --- Герой-секция (Во весь экран) --- */
+        #hero {
+            height: 100vh;
+            background-image: url('шоко лега.wmf');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #3a1f12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(58, 31, 18, 0.65);
+            z-index: 1;
+        }
+
+        #hero::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: -30px;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(196, 126, 64, 0.25) 0%, transparent 70%);
+            z-index: 1;
+        }
+
+        #hero-content::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(196, 126, 64, 0.3) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        #hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        #hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 60px;
+            font-weight: 900;
+            color: #f5e6d3;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        #hero p {
+            font-size: 20px;
+            color: #c4a07e;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* --- Вступительная секция --- */
+        #intro {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: #fdf6ee;
+            border-top: 4px solid #7b4a2e;
+            padding: 60px 20px;
+        }
+
+        #intro h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            font-weight: 900;
+            color: #3a1f12;
+            margin-bottom: 20px;
+        }
+
+        #intro p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #5a3e2b;
+            max-width: 700px;
+        }
+
+        /* --- Общие стили для всех этапов --- */
+        #stage-fermentation,
+        #stage-drying,
+        #stage-grinding,
+        #stage-pressing,
+        #stage-conching,
+        #stage-tempering {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 50px;
+            padding: 60px 50px;
+            border-top: 4px solid #7b4a2e;
+        }
+
+        #stage-fermentation-info,
+        #stage-drying-info,
+        #stage-grinding-info,
+        #stage-pressing-info,
+        #stage-conching-info,
+        #stage-tempering-info {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        #stage-fermentation-visual,
+        #stage-drying-visual,
+        #stage-grinding-visual,
+        #stage-pressing-visual,
+        #stage-conching-visual,
+        #stage-tempering-visual {
+            flex: 1;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #stage-fermentation, #stage-grinding, #stage-conching {
+            background-color: #f0e4d4;
+        }
+
+        #stage-drying, #stage-pressing, #stage-tempering {
+            background-color: #fdf6ee;
+        }
+
+        #stage-fermentation-number,
+        #stage-drying-number,
+        #stage-grinding-number,
+        #stage-pressing-number,
+        #stage-conching-number,
+        #stage-tempering-number {
+            display: inline-block;
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            font-weight: 700;
+            background-color: #3a1f12;
+            color: #f5e6d3;
+            padding: 5px 16px;
+            border-radius: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        #stage-fermentation h2,
+        #stage-drying h2,
+        #stage-grinding h2,
+        #stage-pressing h2,
+        #stage-conching h2,
+        #stage-tempering h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            font-weight: 900;
+            color: #3a1f12;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        #stage-fermentation p,
+        #stage-drying p,
+        #stage-grinding p,
+        #stage-pressing p,
+        #stage-conching p,
+        #stage-tempering p {
+            font-size: 17px;
+            line-height: 1.8;
+            color: #5a3e2b;
+            margin-bottom: 15px;
+        }
+
+        #stage-fermentation ul,
+        #stage-drying ul,
+        #stage-grinding ul,
+        #stage-pressing ul,
+        #stage-conching ul,
+        #stage-tempering ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        #stage-fermentation li,
+        #stage-drying li,
+        #stage-grinding li,
+        #stage-pressing li,
+        #stage-conching li,
+        #stage-tempering li {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #5a3e2b;
+            margin-bottom: 6px;
+        }
+
+        #stage-fermentation img,
+        #stage-drying img,
+        #stage-grinding img,
+        #stage-pressing img,
+        #stage-conching img,
+        #stage-tempering img {
+            width: 100%;
+            height: auto;
+            max-height: 350px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 4px solid #7b4a2e;
+            display: block;
+        }
+
+        #stage-fermentation-fact,
+        #stage-drying-fact,
+        #stage-grinding-fact,
+        #stage-pressing-fact,
+        #stage-conching-fact,
+        #stage-tempering-fact {
+            border-left: 5px solid #7b4a2e;
+            padding: 15px 20px;
+            border-radius: 0 12px 12px 0;
+        }
+
+        #stage-fermentation-fact,
+        #stage-grinding-fact,
+        #stage-conching-fact {
+            background-color: #ffffff;
+        }
+
+        #stage-drying-fact,
+        #stage-pressing-fact,
+        #stage-tempering-fact {
+            background-color: #f5e6d3;
+        }
+
+        #stage-fermentation-fact strong,
+        #stage-drying-fact strong,
+        #stage-grinding-fact strong,
+        #stage-pressing-fact strong,
+        #stage-conching-fact strong,
+        #stage-tempering-fact strong {
+            display: block;
+            color: #3a1f12;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        #stage-fermentation-fact span,
+        #stage-drying-fact span,
+        #stage-grinding-fact span,
+        #stage-pressing-fact span,
+        #stage-conching-fact span,
+        #stage-tempering-fact span {
+            display: block;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #5a3e2b;
+        }
+
+        /* --- Кнопка наверх --- */
+        #back-top {
+            display: inline-block;
+            margin-top: 25px;
+            text-decoration: none;
+            color: #fdf6ee;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 10px 24px;
+            background-color: #7b4a2e;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #back-top:hover {
+            background-color: #3a1f12;
+            color: #f5e6d3;
+        }
+
+        /* --- Подвал --- */
+        #footer {
+            background-color: #3a1f12;
+            color: #c4a07e;
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 4px solid #7b4a2e;
+            font-size: 15px;
+        }
+
+        #footer p {
+            line-height: 1.7;
+        }
+
+        /* ============================================= */
+        /* АДАПТИВНОСТЬ ДЛЯ ПЛАНШЕТОВ (ширина до 1024px) */
+        /* ============================================= */
+        @media (max-width: 1024px) {
+            #header {
+                padding: 12px 25px;
+                height: auto;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            #logo {
+                font-size: 22px;
+            }
+
+            #navigation {
+                justify-content: center;
+                gap: 5px;
+            }
+
+            #navigation a {
+                font-size: 13px;
+                padding: 5px 8px;
+            }
+
+            #hero h1 {
+                font-size: 48px;
+            }
+
+            #hero p {
+                font-size: 18px;
+            }
+
+            #intro h2 {
+                font-size: 32px;
+            }
+
+            #intro p {
+                font-size: 17px;
+            }
+
+            #stage-fermentation,
+            #stage-drying,
+            #stage-grinding,
+            #stage-pressing,
+            #stage-conching,
+            #stage-tempering {
+                gap: 30px;
+                padding: 50px 30px;
+            }
+
+            #stage-fermentation h2,
+            #stage-drying h2,
+            #stage-grinding h2,
+            #stage-pressing h2,
+            #stage-conching h2,
+            #stage-tempering h2 {
+                font-size: 30px;
+            }
+
+            #stage-fermentation p,
+            #stage-drying p,
+            #stage-grinding p,
+            #stage-pressing p,
+            #stage-conching p,
+            #stage-tempering p {
+                font-size: 16px;
+            }
+
+            #stage-fermentation li,
+            #stage-drying li,
+            #stage-grinding li,
+            #stage-pressing li,
+            #stage-conching li,
+            #stage-tempering li {
+                font-size: 15px;
+            }
+
+            #stage-fermentation img,
+            #stage-drying img,
+            #stage-grinding img,
+            #stage-pressing img,
+            #stage-conching img,
+            #stage-tempering img {
+                max-height: 300px;
+            }
+        }
+
+        /* ============================================= */
+        /* АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ (ширина до 768px) */
+        /* ============================================= */
+        @media (max-width: 768px) {
+            html {
+                scroll-padding-top: 120px; /* Увеличиваем отступ, чтобы контент не перекрывался шапкой */
+            }
+
+            #header {
+                flex-direction: column;
+                padding: 12px 15px;
+                height: auto;
+                gap: 8px;
+            }
+
+            #logo {
+                font-size: 22px;
+                text-align: center;
+            }
+
+            #navigation {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+            }
+
+            #navigation a {
+                font-size: 13px;
+                padding: 6px 10px;
+                background-color: rgba(123, 74, 46, 0.3); /* Легкий фон для читаемости */
+            }
+
+            #hero {
+                padding: 0 15px;
+            }
+
+            #hero h1 {
+                font-size: 38px;
+                line-height: 1.2;
+                margin-bottom: 15px;
+            }
+
+            #hero p {
+                font-size: 17px;
+                padding: 0 10px;
+            }
+
+            #intro {
+                padding: 60px 20px;
+                min-height: auto; /* На телефоне не обязательно растягивать на весь экран */
+                padding-top: 100px;
+                padding-bottom: 60px;
+            }
+
+            #intro h2 {
+                font-size: 28px;
+            }
+
+            #intro p {
+                font-size: 16px;
+                line-height: 1.7;
+            }
+
+            /* Перестраиваем этапы в колонку */
+            #stage-fermentation,
+            #stage-drying,
+            #stage-grinding,
+            #stage-pressing,
+            #stage-conching,
+            #stage-tempering {
+                flex-direction: column;
+                gap: 30px;
+                padding: 50px 20px;
+                min-height: auto; /* Убираем 100vh на мобильных, чтобы не было огромных отступов */
+                text-align: left;
+            }
+
+            #stage-fermentation-info,
+            #stage-drying-info,
+            #stage-grinding-info,
+            #stage-pressing-info,
+            #stage-conching-info,
+            #stage-tempering-info {
+                max-width: 100%;
+                order: 1; /* Текст сверху */
+            }
+
+            #stage-fermentation-visual,
+            #stage-drying-visual,
+            #stage-grinding-visual,
+            #stage-pressing-visual,
+            #stage-conching-visual,
+            #stage-tempering-visual {
+                max-width: 100%;
+                order: 2; /* Картинка снизу */
+            }
+
+            #stage-fermentation h2,
+            #stage-drying h2,
+            #stage-grinding h2,
+            #stage-pressing h2,
+            #stage-conching h2,
+            #stage-tempering h2 {
+                font-size: 28px;
+                margin-bottom: 15px;
+            }
+
+            #stage-fermentation p,
+            #stage-drying p,
+            #stage-grinding p,
+            #stage-pressing p,
+            #stage-conching p,
+            #stage-tempering p {
+                font-size: 16px;
+                line-height: 1.7;
+            }
+
+            #stage-fermentation li,
+            #stage-drying li,
+            #stage-grinding li,
+            #stage-pressing li,
+            #stage-conching li,
+            #stage-tempering li {
+                font-size: 15px;
+            }
+
+            #stage-fermentation img,
+            #stage-drying img,
+            #stage-grinding img,
+            #stage-pressing img,
+            #stage-conching img,
+            #stage-tempering img {
+                max-height: 280px;
+                width: 100%;
+            }
+
+            #stage-fermentation-fact,
+            #stage-drying-fact,
+            #stage-grinding-fact,
+            #stage-pressing-fact,
+            #stage-conching-fact,
+            #stage-tempering-fact {
+                padding: 12px 16px;
+            }
+
+            #stage-fermentation-fact strong,
+            #stage-drying-fact strong,
+            #stage-grinding-fact strong,
+            #stage-pressing-fact strong,
+            #stage-conching-fact strong,
+            #stage-tempering-fact strong {
+                font-size: 15px;
+            }
+
+            #stage-fermentation-fact span,
+            #stage-drying-fact span,
+            #stage-grinding-fact span,
+            #stage-pressing-fact span,
+            #stage-conching-fact span,
+            #stage-tempering-fact span {
+                font-size: 14px;
+            }
+
+            #back-top {
+                display: block;
+                text-align: center;
+                margin-top: 20px;
+                width: fit-content;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            #footer {
+                padding: 25px 15px;
+                font-size: 14px;
+            }
+        }
+
+        /* ============================================= */
+        /* АДАПТИВНОСТЬ ДЛЯ МАЛЕНЬКИХ ТЕЛЕФОНОВ (до 480px) */
+        /* ============================================= */
+        @media (max-width: 480px) {
+            #navigation a {
+                font-size: 12px;
+                padding: 5px 7px;
+            }
+
+            #hero h1 {
+                font-size: 30px;
+            }
+
+            #hero p {
+                font-size: 16px;
+            }
+
+            #intro h2 {
+                font-size: 24px;
+            }
+
+            #intro p {
+                font-size: 15px;
+            }
+
+            #stage-fermentation h2,
+            #stage-drying h2,
+            #stage-grinding h2,
+            #stage-pressing h2,
+            #stage-conching h2,
+            #stage-tempering h2 {
+                font-size: 24px;
+            }
+
+            #stage-fermentation p,
+            #stage-drying p,
+            #stage-grinding p,
+            #stage-pressing p,
+            #stage-conching p,
+            #stage-tempering p {
+                font-size: 15px;
+            }
+
+            #stage-fermentation li,
+            #stage-drying li,
+            #stage-grinding li,
+            #stage-pressing li,
+            #stage-conching li,
+            #stage-tempering li {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Шапка -->
+    <header id="header">
+        <div1 id= navigation><a href="#hero"><div id="logo">Путь шоколада</div></a></div1>
+        <nav>
+            <ul id="navigation">
+                <li><a href="#stage-fermentation">Ферментация</a></li>
+                <li><a href="#stage-drying">Сушка</a></li>
+                <li><a href="#stage-grinding">Дробление</a></li>
+                <li><a href="#stage-pressing">Прессование</a></li>
+                <li><a href="#stage-conching">Конширование</a></li>
+                <li><a href="#stage-tempering">Темперирование</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Герой-секция -->
+    <section id="hero">
+        <div id="hero-content">
+            <h1>Производство шоколада</h1>
+            <p>От горького какао-боба до тающей во рту плитки</p>
+        </div>
+    </section>
+<B>
+    <!-- Вступление -->
+    <section id="intro">
+        <h2>Как рождается шоколад</h2>
+        <BR>
+        <p>Производство шоколада — это длинная цепочка превращений, которая начинается на плантациях какао и заканчивается на кондитерской фабрике. Ниже описаны шесть ключевых этапов, без которых не получилось бы ни одной шоколадной плитки.</p>
+    </section>
+
+    <!-- Этап 1: Ферментация -->
+    <section id="stage-fermentation">
+        <div id="stage-fermentation-info">
+            <div id="stage-fermentation-number">Этап 1</div>
+            <h2>Сбор и ферментация</h2>
+            <BR>
+            <p>После сбора урожая какао-бобы извлекают из плодов вместе с мякотью и укладывают в деревянные ящики или кучи, накрывая банановыми листьями. В течение 5–7 дней происходит ферментация: микроорганизмы перерабатывают сахара в мякоти, температура поднимается до 50 °C. Бобы теряют горечь и приобретают первые шоколадные нотки.</p>
+            <ul>
+                <li>Длительность: от 5 до 7 дней</li>
+                <li>Температура внутри массы: до 50 °C</li>
+                <li>Бобы перемешивают каждые 2 дня для равномерности</li>
+            </ul>
+        </div>
+        <div id="stage-fermentation-visual">
+            <img src="stage-fermentation.img.wmf">
+            <div id="stage-fermentation-fact">
+                <strong>Интересный факт</strong>
+                <span>Без ферментации какао-боб не имеет шоколадного вкуса — он горький и вяжущий. Именно ферментация запускает химические реакции, формирующие будущий аромат шоколада.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Этап 2: Сушка и обжарка -->
+    <section id="stage-drying">
+        <div id="stage-drying-info">
+            <div id="stage-drying-number">Этап 2</div>
+            <h2>Сушка и обжарка</h2>
+            <BR>
+            <p>После ферментации бобы содержат около 60 % влаги — их нужно высушить до 7–8 %. На плантациях бобы раскладывают на солнце и регулярно переворачивают. Сушка длится 1–2 недели. Затем на фабрике бобы обжаривают при температуре 120–150 °C: это усиливает аромат, убивает бактерии и облегчает отделение оболочки.</p>
+            <ul>
+                <li>Сушка на солнце: 7–14 дней</li>
+                <li>Обжарка: 20–40 минут при 120–150 °C</li>
+                <li>Именно обжарка создаёт характерный запах шоколада</li>
+            </ul>
+        </div>
+        <div id="stage-drying-visual">
+            <img src="сушка и обжарка.wmf">
+            <div id="stage-drying-fact">
+                <strong>Интересный факт</strong>
+                <span>Степень обжарки влияет на вкус так же сильно, как и сорт какао. Слабая обжарка сохраняет фруктовые ноты, а сильная даёт глубокий карамельный тон.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Этап 3: Дробление -->
+    <section id="stage-grinding">
+        <div id="stage-grinding-info">
+            <div id="stage-grinding-number">Этап 3</div>
+            <h2>Дробление и очистка</h2>
+            <BR>
+            <p>Обжаренные бобы охлаждают, затем дробят и очищают от тонкой оболочки — какаовеллы. Очищенные кусочки ядра называют какао-крупкой. Крупку измельчают до состояния густой тёмной массы — какао-тертой. На этом этапе текстура уже напоминает жидкий шоколад, но вкус ещё очень горький и концентрированный.</p>
+            <ul>
+                <li>Какаовелла составляет около 12–15 % массы боба</li>
+                <li>Какао-крупка — это чистое ядро без оболочки</li>
+                <li>Какао-тертая масса содержит около 55 % какао-масла</li>
+            </ul>
+        </div>
+        <div id="stage-grinding-visual">
+            <img src="дробление и очистка.wmf">
+            <div id="stage-grinding-fact">
+                <strong>Интересный факт</strong>
+                <span>Какаовеллу не выбрасывают — её используют как удобрение, корм для скота или добавку в чай из-за содержания теобромина.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Этап 4: Прессование -->
+    <section id="stage-pressing">
+        <div id="stage-pressing-info">
+            <div id="stage-pressing-number">Этап 4</div>
+            <h2>Прессование</h2>
+            <BR>
+            <p>Какао-тертую массу прессуют под высоким давлением, отделяя какао-масло от какао-жмыха. Масло — ценнейший продукт, которое позже вернётся в шоколадную массу для мягкости и тающей текстуры. Жмых измельчают в какао-порошок, который используют в выпечке и напитках.</p>
+            <ul>
+                <li>Давление пресса: до 40–50 МПа</li>
+                <li>Из 100 кг какао-тертой массы получают около 45 кг масла</li>
+                <li>Какао-порошок — побочный продукт прессования</li>
+            </ul>
+        </div>
+        <div id="stage-pressing-visual">
+            <img src="прессование.wmf" alt="Прессование какао-массы">
+            <div id="stage-pressing-fact">
+                <strong>Интересный факт</strong>
+                <span>Настоящий шоколад должен содержать какао-масло. Если производитель заменяет его другим жиром — это уже не шоколад по международным стандартам.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Этап 5: Конширование -->
+    <section id="stage-conching">
+        <div id="stage-conching-info">
+            <div id="stage-conching-number">Этап 5</div>
+            <h2>Смешивание и конширование</h2>
+            <BR>
+            <p>Какао-тертую массу смешивают с какао-маслом, сахаром, а для молочного шоколада — ещё с сухим молоком. Затем массу отправляют в конш-машину, где она непрерывно перемешивается при нагревании от 12 до 72 часов. Конширование удаляет остатки кислот и влаги, делает текстуру абсолютно гладкой, а вкус — мягким и округлым.</p>
+            <ul>
+                <li>Конширование длится от 12 до 72 часов</li>
+                <li>Температура массы: 60–80 °C</li>
+                <li>Чем дольше конширование — тем нежнее вкус</li>
+            </ul>
+        </div>
+        <div id="stage-conching-visual">
+            <img src="смешивание и конширование.wmf" alt="Конширование шоколада">
+            <div id="stage-conching-fact">
+                <strong>Интересный факт</strong>
+                <span>Процесс назван в честь конш-машины, изобретённой Родольфом Линдтом в 1879 году. Форма резервуара напоминала раковину — «коншу» по-французски.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Этап 6: Темперирование -->
+    <section id="stage-tempering">
+        <div id="stage-tempering-info">
+            <div id="stage-tempering-number">Этап 6</div>
+            <h2>Темперирование и формование</h2>
+            <BR>
+            <p>Последний и самый тонкий этап — темперирование. Шоколадную массу нагревают, затем охлаждают и снова слегка нагревают по строго заданному графику. Это заставляет какао-масло кристаллизоваться в стабильную форму. Правильно темперированный шоколад блестит, ломается с характерным хрустом и не тает в руках. Затем массу разливают в формы, охлаждают и упаковывают.</p>
+            <ul>
+                <li>Нагрев до 45–50 °C, охлаждение до 27–28 °C, повторный нагрев до 31–32 °C</li>
+                <li>Только одна из шести форм кристаллов какао-масла даёт стабильный результат</li>
+                <li>Охлаждение в формах: 8–12 минут при 10–12 °C</li>
+            </ul>
+            <a href="#hero" id="back-top">Вернуться наверх</a>
+        </div>
+        <div id="stage-tempering-visual">
+            <img src="темперирование.wmf" alt="Темперирование шоколада">
+            <div id="stage-tempering-fact">
+                <strong>Интересный факт</strong>
+                <span>Если шоколад побелел и покрылся матовым налётом — это результат неправильного темперирования. Такой шоколад безопасен, но его текстура и внешний вид ухудшаются.</span>
+            </div>
+        </div>
+    </section>
+    </B>
+    <!-- Подвал -->
+    <footer id="footer">
+        <p>Copyright © Сергей Якуц 2026<BR>Контактная информация: +7 952 569 54 52</p>
+    </footer>
+
+</body>
+</html>
+```
